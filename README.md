@@ -90,3 +90,58 @@ The file contains two columns:
 ## Dependencies
 
 The dependencies are listed in `requirements.txt` and automatically installed during the Docker build.
+
+## R Implementation – Titanic Survival Prediction
+
+This repository also includes an R implementation of the Titanic survival prediction model.
+
+The R script performs data exploration, missing-value handling, feature engineering, logistic regression, and model evaluation.
+
+### Requirements
+
+- Docker Desktop
+- Titanic `train.csv` and `test.csv` files
+
+The datasets must be placed in `src/data/`. They are excluded from GitHub.
+
+### Build the R Docker image
+
+From the root directory of the repository, run:
+
+```bash
+docker build -f src/r/Dockerfile -t titanic-r .
+```
+
+### Run the R model
+
+```bash
+docker run --rm -v "$(pwd)/src/data:/app/src/data" titanic-r
+```
+
+The script will:
+
+1. Load the training and test datasets.
+2. Display dataset statistics and missing values.
+3. Create a `FamilySize` feature.
+4. Handle missing values and categorical variables.
+5. Train a logistic regression model using R's `glm()`.
+6. Calculate training and validation accuracy.
+7. Generate survival predictions for the test dataset.
+8. Save predictions to `src/data/predictions_r.csv`.
+
+### Model Evaluation
+
+The R model uses an approximately 80/20 stratified training-validation split.
+
+The validation dataset is held out from model fitting to evaluate predictive performance. Missing-value imputation parameters are estimated using only the corresponding training data.
+
+The model is then retrained on all available labeled training data before predicting the Kaggle test dataset.
+
+Because the standard Kaggle `test.csv` lacks actual survival outcomes, true test accuracy cannot be calculated directly.
+
+### Project Files
+
+- `src/r/main.R` – Titanic data processing and logistic regression
+- `src/r/install_packages.R` – R dependency installation
+- `src/r/Dockerfile` – R Docker environment
+- `src/data/predictions_r.csv` – Generated R predictions (not committed to GitHub)
